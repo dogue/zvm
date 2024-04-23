@@ -15,4 +15,5 @@ var (
 	ErrMissingInstallPathEnv = errors.New("env 'ZVM_INSTALL' is not set")
 	ErrFailedUpgrade         = errors.New("failed to self-upgrade zvm")
 	ErrInvalidVersionMap     = errors.New("invalid version map format")
+	ErrInvalidZlsVersion     = errors.New("invalid ZLS version")
 )

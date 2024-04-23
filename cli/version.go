@@ -74,4 +74,72 @@ func (z *ZVM) fetchVersionMap() (zigVersionMap, error) {
 	return rawVersionStructure, nil
 }
 
+func (z *ZVM) ValidateVersion(version string) (err error) {
+	err = z.zigVersionIsValid(version)
+	if err != nil {
+		return
+	}
+
+	err = z.zlsVersionIsValid(version)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (z *ZVM) zigVersionIsValid(version string) (err error) {
+	if version == "master" {
+		return
+	}
+
+	versionMap, err := z.fetchVersionMap()
+	if err != nil {
+		return
+	}
+
+	if _, ok := versionMap[version]; !ok {
+		err = ErrUnsupportedVersion
+	}
+
+	return
+}
+
+func (z *ZVM) zlsVersionIsValid(version string) (err error) {
+	if version == "master" {
+		return
+	}
+
+	zlsVersionsUrl := "https://zigtools-releases.nyc3.digitaloceanspaces.com/zls/index.json"
+
+	req, err := http.NewRequest("GET", zlsVersionsUrl, nil)
+	if err != nil {
+		return
+	}
+
+	req.Header.Set("User-Agent", "zvm "+meta.VERSION)
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+
+	var releases zlsCIDownloadIndexResponse
+	if err = json.Unmarshal(data, &releases); err != nil {
+		return
+	}
+
+	if _, valid := releases.Versions[version]; !valid {
+		err = ErrInvalidZlsVersion
+	}
+
+	return
+}
+
 // statelessFetchVersionMap is the same as fetchVersionMap but it doesn't write to disk. Will probably be depreciated and nuked from orbit when my
