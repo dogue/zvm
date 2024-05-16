@@ -5,6 +5,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"html/template"
@@ -165,11 +166,26 @@ func main() {
 
 		case "install", "i":
 			installFlagSet.Parse(args[i+1:])
+			installZls := false
+			if *installDeps == "zls" {
+				installZls = true
+			}
 			// signal to install zls after zig
 
 			req := cli.ExtractInstall(args[len(args)-1])
 			req.Version = strings.TrimPrefix(req.Version, "v")
 			// log.Debug(req, "deps", *installDeps)
+
+			if err := zvm.ValidateVersion(req.Package); err != nil {
+				if errors.Is(err, cli.ErrInvalidZlsVersion) && !installZls {
+					// TODO:(dogue) this if statement is stupid
+
+					// don't report an error for the ZLS version
+					// if ZLS wasn't requested to be installed
+				} else {
+					meta.CtaFatal(err)
+				}
+			}
 
 			if err := zvm.Install(req.Package); err != nil {
 				meta.CtaFatal(err)
