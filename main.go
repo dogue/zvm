@@ -13,6 +13,7 @@ import (
 
 	"github.com/tristanisham/zvm/cli"
 	"github.com/tristanisham/zvm/cli/meta"
+	opts "github.com/urfave/cli/v2"
 
 	"github.com/charmbracelet/log"
 
@@ -22,6 +23,69 @@ import (
 //go:embed help.txt
 var helpTxt string
 
+var zvmOpts = &opts.App{
+	Name:      "ZVM",
+	HelpName:  "zvm",
+	Version:   meta.VERSION,
+	Copyright: "Copyright © 2022 Tristan Isham",
+	Commands: []*opts.Command{
+		{
+			Name:    "install",
+			Usage:   "download and install a version of Zig",
+			Aliases: []string{"i"},
+			Flags: []opts.Flag{
+				&opts.BoolFlag{
+					Name:    "zls",
+					Aliases: []string{"z"},
+					Usage:   "install ZLS",
+				},
+			},
+			Args: true,
+			Action: func(ctx *opts.Context) error {
+				// validate version (default to latest?)
+				return nil
+			},
+		},
+		{
+			Name:  "use",
+			Usage: "switch between versions of Zig",
+			Action: func(ctx *opts.Context) error {
+				// validate version
+				return nil
+			},
+		},
+		{
+			Name:    "list",
+			Usage:   "list installed Zig versions",
+			Aliases: []string{"ls"},
+			Flags: []opts.Flag{
+				&opts.BoolFlag{
+					Name:    "all",
+					Aliases: []string{"a"},
+					Usage:   "list remote Zig versions available for download",
+				},
+			},
+		},
+		{
+			Name:    "uninstall",
+			Usage:   "remote an installed version of Zig",
+			Aliases: []string{"rm"},
+			Action: func(ctx *opts.Context) error {
+				// validation
+				return nil
+			},
+		},
+		{
+			Name:  "clean",
+			Usage: "remove build artifacts (good if you're a scrub)",
+		},
+		{
+			Name:  "upgrade",
+			Usage: "self-update ZVM",
+		},
+	},
+}
+
 func main() {
 	zvm := cli.Initialize()
 	args := os.Args[1:]
@@ -29,11 +93,15 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if len(args) == 0 {
-		helpMsg()
-		// zvm.AlertIfUpgradable()
+	if err := zvmOpts.Run(os.Args); err != nil || err == nil {
 		os.Exit(0)
 	}
+
+	// if len(args) == 0 {
+	// helpMsg()
+	// zvm.AlertIfUpgradable()
+	// os.Exit(0)
+	// }
 
 	// zvm.AlertIfUpgradable()
 	versionFlag := flag.Bool("version", false, "Print ZVM version information")
