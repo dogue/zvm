@@ -75,12 +75,12 @@ func (z *ZVM) fetchVersionMap() (zigVersionMap, error) {
 }
 
 func (z *ZVM) ValidateVersion(version string) (err error) {
-	err = z.zigVersionIsValid(version)
+	err = z.ZigVersionIsValid(version)
 	if err != nil {
 		return
 	}
 
-	err = z.zlsVersionIsValid(version)
+	err = z.ZlsVersionIsValid(version)
 	if err != nil {
 		return
 	}
@@ -88,7 +88,7 @@ func (z *ZVM) ValidateVersion(version string) (err error) {
 	return
 }
 
-func (z *ZVM) zigVersionIsValid(version string) (err error) {
+func (z *ZVM) ZigVersionIsValid(version string) (err error) {
 	if version == "master" {
 		return
 	}
@@ -105,7 +105,7 @@ func (z *ZVM) zigVersionIsValid(version string) (err error) {
 	return
 }
 
-func (z *ZVM) zlsVersionIsValid(version string) (err error) {
+func (z *ZVM) ZlsVersionIsValid(version string) (err error) {
 	if version == "master" {
 		return
 	}
