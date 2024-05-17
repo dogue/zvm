@@ -10,6 +10,7 @@ import (
 	// "fmt"
 	// "html/template"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 
@@ -32,10 +33,12 @@ var zvmApp = &opts.App{
 	HelpName:  "zvm",
 	Version:   meta.VERSION,
 	Copyright: "Copyright © 2022 Tristan Isham",
+	Suggest:   true,
 	Before: func(ctx *opts.Context) error {
 		zvm = *cli.Initialize()
 		return nil
 	},
+	// app-global flags
 	Flags: []opts.Flag{
 		&opts.StringFlag{
 			Name:  "color",
@@ -69,7 +72,9 @@ var zvmApp = &opts.App{
 					Usage:   "install ZLS",
 				},
 			},
-			Args: true,
+			Description: "To install the latest version, use `master`",
+			Args:        true,
+			ArgsUsage:   " <ZIG VERSION>",
 			Action: func(ctx *opts.Context) error {
 				versionArg := strings.TrimPrefix(ctx.Args().First(), "v")
 
@@ -139,7 +144,7 @@ var zvmApp = &opts.App{
 		},
 		{
 			Name:    "uninstall",
-			Usage:   "remote an installed version of Zig",
+			Usage:   "remove an installed version of Zig",
 			Aliases: []string{"rm"},
 			Args:    true,
 			Action: func(ctx *opts.Context) error {
@@ -193,11 +198,11 @@ var zvmApp = &opts.App{
 }
 
 func main() {
-	// args := os.Args[1:]
 	if _, ok := os.LookupEnv("ZVM_DEBUG"); ok {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	// run and report errors
 	if err := zvmApp.Run(os.Args); err != nil {
 		meta.CtaFatal(err)
 	}
